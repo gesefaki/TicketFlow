@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TicketFlow.BuildingBlocks.Domain", "src\BuildingBlocks\TicketFlow.BuildingBlocks.Domain\TicketFlow.BuildingBlocks.Domain.csproj", "{CA3981B3-29A1-4242-BBC7-0C8B48AD5413}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TicketFlow.Reservations.Domain", "src\Reservations\TicketFlow.Reservations.Domain\TicketFlow.Reservations.Domain.csproj", "{2446E473-0168-4FAB-86D0-22E801CC599B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TicketFlow.Reservations.Domain.UnitTests", "tests\TicketFlow.Reservations.Domain.UnitTests\TicketFlow.Reservations.Domain.UnitTests.csproj", "{13A07BE9-380A-41C0-97C8-9E86D2AAB0A8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CA3981B3-29A1-4242-BBC7-0C8B48AD5413}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA3981B3-29A1-4242-BBC7-0C8B48AD5413}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA3981B3-29A1-4242-BBC7-0C8B48AD5413}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA3981B3-29A1-4242-BBC7-0C8B48AD5413}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2446E473-0168-4FAB-86D0-22E801CC599B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2446E473-0168-4FAB-86D0-22E801CC599B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2446E473-0168-4FAB-86D0-22E801CC599B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2446E473-0168-4FAB-86D0-22E801CC599B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13A07BE9-380A-41C0-97C8-9E86D2AAB0A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13A07BE9-380A-41C0-97C8-9E86D2AAB0A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13A07BE9-380A-41C0-97C8-9E86D2AAB0A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13A07BE9-380A-41C0-97C8-9E86D2AAB0A8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
