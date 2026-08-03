@@ -11,10 +11,12 @@ namespace TicketFlow.Reservations.Domain.Reservations;
 /// </summary>
 public sealed class Reservation : AggregateRoot<ReservationId>
 {
+    private readonly List<SeatId> _seatIds = [];
+
     /// <summary>
-    /// Identifier of the reserved seat.
+    /// Read-only collection of identifiers of the reserved seats.
     /// </summary>
-    public SeatId SeatId { get; private set; }
+    public IReadOnlyCollection<SeatId> SeatIds => _seatIds.AsReadOnly();
 
     /// <summary>
     /// Identifier of the customer who owns the reservation.
@@ -41,6 +43,9 @@ public sealed class Reservation : AggregateRoot<ReservationId>
     /// </summary>
     public DateTimeOffset? ExpiredAt { get; private set; }
 
+    /// <summary>
+    /// Represents the current state of a reservation.
+    /// </summary>
     public ReservationStatus Status { get; private set; }
     
     private Reservation()
@@ -48,25 +53,43 @@ public sealed class Reservation : AggregateRoot<ReservationId>
     }
 
     /// <summary>
-    /// Creates a new pending reservation for a seat and customer.
+    /// Creates a new pending reservation for one or more seats and a customer.
     /// </summary>
-    /// <param name="seatId">Identifier of the seat to reserve.</param>
+    /// <param name="seatIds">Identifiers of the seats to reserve.</param>
     /// <param name="customerId">Identifier of the customer making the reservation.</param>
     /// <param name="reservedAt">Timestamp at which the reservation is created.</param>
     /// <param name="reservationDuration">Duration for which the reservation remains active.</param>
     /// <returns>A new pending reservation.</returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when the seat identifiers collection is <see langword="null"/>.
+    /// </exception>
     /// <exception cref="DomainException">
-    /// Thrown when an identifier is empty or the reservation duration is not positive.
+    /// Thrown when the collection is empty, contains an empty or duplicate seat identifier,
+    /// the customer identifier is empty, or the reservation duration is not positive.
     /// </exception>
     public static Reservation Reserve(
-        SeatId seatId,
+        IEnumerable<SeatId> seatIds,
         CustomerId customerId,
         DateTimeOffset reservedAt,
         TimeSpan reservationDuration)
     {
-        if (seatId.IsEmpty)
+        ArgumentNullException.ThrowIfNull(seatIds);
+
+        var reservedSeatIds = seatIds.ToList();
+
+        if (reservedSeatIds.Count == 0)
         {
-            throw new DomainException($"{nameof(Reservation)}: {nameof(seatId)} is empty.");
+            throw new DomainException($"{nameof(Reservation)}: {nameof(seatIds)} is empty.");
+        }
+
+        if (reservedSeatIds.Any(seatId => seatId.IsEmpty))
+        {
+            throw new DomainException($"{nameof(Reservation)}: {nameof(seatIds)} contains an empty identifier.");
+        }
+
+        if (reservedSeatIds.Distinct().Count() != reservedSeatIds.Count)
+        {
+            throw new DomainException($"{nameof(Reservation)}: {nameof(seatIds)} contains duplicate identifiers.");
         }
 
         if (customerId.IsEmpty)
@@ -76,18 +99,21 @@ public sealed class Reservation : AggregateRoot<ReservationId>
 
         if (reservationDuration <= TimeSpan.Zero)
         {
-            throw new DomainException($"{nameof(Reservation)}: {nameof(reservationDuration)} have invalid value.");
+            throw new DomainException($"{nameof(Reservation)}: {nameof(reservationDuration)} must be positive.");
         }
 
-        return new Reservation
+        var reservation = new Reservation
         {
             Id = ReservationId.New(),
-            SeatId = seatId,
             CustomerId = customerId,
             CreatedAt = reservedAt,
             ExpiresAt = reservedAt + reservationDuration,
             Status = ReservationStatus.Pending
         };
+
+        reservation._seatIds.AddRange(reservedSeatIds);
+
+        return reservation;
     }
 
     /// <summary>
@@ -133,9 +159,9 @@ public sealed class Reservation : AggregateRoot<ReservationId>
     /// <summary>
     /// Cancels the pending reservation.
     /// </summary>
-    /// <param name="cancelledAt">Timestamp at which the reservation is cancelled.</param>
+    /// <param name="cancelledAt">Timestamp at which the reservation is canceled.</param>
     /// <exception cref="DomainException">
-    /// Thrown when the reservation cannot be cancelled from its current state or at the specified time.
+    /// Thrown when the reservation cannot be canceled from its current state or at the specified time.
     /// </exception>
     public void Cancel(DateTimeOffset cancelledAt)
     {
@@ -184,12 +210,6 @@ public sealed class Reservation : AggregateRoot<ReservationId>
                 $" cannot be earlier than {nameof(CreatedAt)} with {CreatedAt} date");
         }
 
-        if (confirmedAt >= ExpiresAt)
-        {
-            throw new DomainException(
-                $"{nameof(Reservation)} {nameof(confirmedAt)} with {confirmedAt} date" +
-                $" cannot be later than {nameof(ExpiresAt)} with {ExpiresAt} date");
-        }
     }
 
     private void EnsureCanExpire(DateTimeOffset expiredAt)

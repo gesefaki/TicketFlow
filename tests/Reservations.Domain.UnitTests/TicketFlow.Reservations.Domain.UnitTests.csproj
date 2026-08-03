@@ -20,7 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\Reservations\TicketFlow.Reservations.Domain\TicketFlow.Reservations.Domain.csproj" />
+      <ProjectReference Include="..\..\src\Modules\Reservations\Domain\TicketFlow.Reservations.Domain.csproj" />
     </ItemGroup>
 
 </Project>
