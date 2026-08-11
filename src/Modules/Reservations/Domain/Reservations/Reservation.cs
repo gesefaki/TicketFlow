@@ -1,6 +1,7 @@
 ﻿using TicketFlow.BuildingBlocks.Domain.Common;
 using TicketFlow.BuildingBlocks.Domain.Models;
 using TicketFlow.Reservations.Domain.Customers;
+using TicketFlow.Reservations.Domain.Events;
 using TicketFlow.Reservations.Domain.Seats;
 
 namespace TicketFlow.Reservations.Domain.Reservations;
@@ -47,7 +48,7 @@ public sealed class Reservation : AggregateRoot<ReservationId>
     /// Represents the current state of a reservation.
     /// </summary>
     public ReservationStatus Status { get; private set; }
-    
+
     private Reservation()
     {
     }
@@ -113,6 +114,14 @@ public sealed class Reservation : AggregateRoot<ReservationId>
 
         reservation._seatIds.AddRange(reservedSeatIds);
 
+        reservation.Raise(new ReservationCreatedDomainEvent(
+            reservation.Id,
+            reservation.CustomerId,
+            reservation.SeatIds.ToArray(),
+            reservedAt,
+            reservation.ExpiresAt)
+        );
+
         return reservation;
     }
 
@@ -134,6 +143,11 @@ public sealed class Reservation : AggregateRoot<ReservationId>
 
         ConfirmedAt = confirmedAt;
         Status = ReservationStatus.Confirmed;
+
+        Raise(new ReservationConfirmedDomainEvent(
+            Id,
+            confirmedAt)
+        );
     }
 
     /// <summary>
@@ -154,6 +168,11 @@ public sealed class Reservation : AggregateRoot<ReservationId>
 
         ExpiredAt = expiredAt;
         Status = ReservationStatus.Expired;
+
+        Raise(new ReservationExpiredDomainEvent(
+            Id,
+            expiredAt)
+        );
     }
 
     /// <summary>
@@ -174,6 +193,11 @@ public sealed class Reservation : AggregateRoot<ReservationId>
 
         CancelledAt = cancelledAt;
         Status = ReservationStatus.Cancelled;
+
+        Raise(new ReservationCancelledDomainEvent(
+            Id,
+            cancelledAt)
+        );
     }
 
     /// <summary>
@@ -209,7 +233,6 @@ public sealed class Reservation : AggregateRoot<ReservationId>
                 $"{nameof(Reservation)} {nameof(confirmedAt)} with {confirmedAt} date" +
                 $" cannot be earlier than {nameof(CreatedAt)} with {CreatedAt} date");
         }
-
     }
 
     private void EnsureCanExpire(DateTimeOffset expiredAt)

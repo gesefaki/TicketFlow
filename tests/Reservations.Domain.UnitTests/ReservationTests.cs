@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using TicketFlow.BuildingBlocks.Domain.Common;
 using TicketFlow.Reservations.Domain.Customers;
+using TicketFlow.Reservations.Domain.Events;
 using TicketFlow.Reservations.Domain.Reservations;
 using TicketFlow.Reservations.Domain.Seats;
 
@@ -8,7 +9,7 @@ namespace TicketFlow.Reservations.Domain.UnitTests;
 
 public class ReservationTests
 {
-    private readonly SeatId _seatId = SeatId.New();
+    private readonly SeatId _seatIds = SeatId.New();
     private readonly CustomerId _customerId = CustomerId.New();
     private readonly DateTimeOffset _reservedAt = DateTimeOffset.UtcNow;
     private readonly TimeSpan _reservationDuration = TimeSpan.FromMinutes(15);
@@ -22,13 +23,13 @@ public class ReservationTests
     {
         // Act
         var reservation =
-            Reservation.Reserve([_seatId], _customerId, _reservedAt, _reservationDuration);
+            Reservation.Reserve([_seatIds], _customerId, _reservedAt, _reservationDuration);
 
         // Assert
         reservation.Id.Should().NotBe(ReservationId.Empty);
 
         reservation.SeatIds.Should().ContainSingle()
-            .Which.Should().Be(_seatId);
+            .Which.Should().Be(_seatIds);
 
         reservation.CustomerId.Should().NotBe(CustomerId.Empty);
         Assert.Equal(reservation.CustomerId, _customerId);
@@ -44,7 +45,7 @@ public class ReservationTests
     {
         // Arrange
         var secondSeatId = SeatId.New();
-        SeatId[] seatIds = [_seatId, secondSeatId];
+        SeatId[] seatIds = [_seatIds, secondSeatId];
 
         // Act
         var reservation =
@@ -58,7 +59,7 @@ public class ReservationTests
     public void Reserve_WhenSourceCollectionChanges_PreserveReservedSeatIds()
     {
         // Arrange
-        var seatIds = new List<SeatId> { _seatId };
+        var seatIds = new List<SeatId> { _seatIds };
         var reservation =
             Reservation.Reserve(seatIds, _customerId, _reservedAt, _reservationDuration);
 
@@ -67,7 +68,7 @@ public class ReservationTests
 
         // Assert
         reservation.SeatIds.Should().ContainSingle()
-            .Which.Should().Be(_seatId);
+            .Which.Should().Be(_seatIds);
     }
 
     [Fact]
@@ -108,7 +109,7 @@ public class ReservationTests
     {
         // Arrange
         var action = () =>
-            Reservation.Reserve([_seatId, _seatId], _customerId, _reservedAt, _reservationDuration);
+            Reservation.Reserve([_seatIds, _seatIds], _customerId, _reservedAt, _reservationDuration);
 
         // Act + Assert
         action.Should().Throw<DomainException>();
@@ -119,7 +120,7 @@ public class ReservationTests
     {
         // Arrange
         var action = ()
-            => Reservation.Reserve([_seatId], _emptyCustomerId, _reservedAt, _reservationDuration);
+            => Reservation.Reserve([_seatIds], _emptyCustomerId, _reservedAt, _reservationDuration);
 
         // Act + Assert
         action.Should().Throw<DomainException>();
@@ -130,7 +131,7 @@ public class ReservationTests
     {
         // Arrange
         var action = ()
-            => Reservation.Reserve([_seatId], _customerId, _reservedAt, _zeroReservationDuration);
+            => Reservation.Reserve([_seatIds], _customerId, _reservedAt, _zeroReservationDuration);
 
         // Act + Assert
         action.Should().Throw<DomainException>();
@@ -142,7 +143,7 @@ public class ReservationTests
         // Arrange
         var negativeReservationDuration = TimeSpan.FromMinutes(-1);
         var action = ()
-            => Reservation.Reserve([_seatId], _customerId, _reservedAt, negativeReservationDuration);
+            => Reservation.Reserve([_seatIds], _customerId, _reservedAt, negativeReservationDuration);
 
         // Act + Assert
         action.Should().Throw<DomainException>();
@@ -153,7 +154,7 @@ public class ReservationTests
     {
         // Arrange
         var reservation =
-            Reservation.Reserve([_seatId], _customerId, _reservedAt, _reservationDuration);
+            Reservation.Reserve([_seatIds], _customerId, _reservedAt, _reservationDuration);
         var confirmedAt = _reservedAt.AddMinutes(5);
 
         // Act
@@ -169,7 +170,7 @@ public class ReservationTests
     {
         // Arrange
         var reservation =
-            Reservation.Reserve([_seatId], _customerId, _reservedAt, _reservationDuration);
+            Reservation.Reserve([_seatIds], _customerId, _reservedAt, _reservationDuration);
         var action = () => reservation.Confirm(reservation.ExpiresAt);
 
         // Act + Assert
@@ -181,7 +182,7 @@ public class ReservationTests
     {
         // Arrange
         var reservation =
-            Reservation.Reserve([_seatId], _customerId, _reservedAt, _reservationDuration);
+            Reservation.Reserve([_seatIds], _customerId, _reservedAt, _reservationDuration);
         var confirmedAt = reservation.ExpiresAt.AddTicks(1);
         var action = () => reservation.Confirm(confirmedAt);
 
@@ -194,7 +195,7 @@ public class ReservationTests
     {
         // Arrange
         var reservation =
-            Reservation.Reserve([_seatId], _customerId, _reservedAt, _reservationDuration);
+            Reservation.Reserve([_seatIds], _customerId, _reservedAt, _reservationDuration);
         var repeatedConfirmedAt = _reservedAt.AddMinutes(10);
         reservation.Confirm(_reservedAt);
 
@@ -211,7 +212,7 @@ public class ReservationTests
     {
         // Arrange
         var reservation =
-            Reservation.Reserve([_seatId], _customerId, _reservedAt, _reservationDuration);
+            Reservation.Reserve([_seatIds], _customerId, _reservedAt, _reservationDuration);
         var expiredAt = reservation.ExpiresAt.AddTicks(-1);
         var action = () => reservation.Expire(expiredAt);
 
@@ -224,7 +225,7 @@ public class ReservationTests
     {
         // Arrange
         var reservation =
-            Reservation.Reserve([_seatId], _customerId, _reservedAt, _reservationDuration);
+            Reservation.Reserve([_seatIds], _customerId, _reservedAt, _reservationDuration);
         var expiredAt = reservation.ExpiresAt;
 
         // Act
@@ -240,7 +241,7 @@ public class ReservationTests
     {
         // Arrange
         var reservation =
-            Reservation.Reserve([_seatId], _customerId, _reservedAt, _reservationDuration);
+            Reservation.Reserve([_seatIds], _customerId, _reservedAt, _reservationDuration);
         reservation.Confirm(_reservedAt);
         var action = () => reservation.Expire(reservation.ExpiresAt);
 
@@ -253,7 +254,7 @@ public class ReservationTests
     {
         // Arrange
         var reservation =
-            Reservation.Reserve([_seatId], _customerId, _reservedAt, _reservationDuration);
+            Reservation.Reserve([_seatIds], _customerId, _reservedAt, _reservationDuration);
         var cancelledAt = _reservedAt.AddMinutes(5);
 
         // Act
@@ -269,7 +270,7 @@ public class ReservationTests
     {
         // Arrange
         var reservation =
-            Reservation.Reserve([_seatId], _customerId, _reservedAt, _reservationDuration);
+            Reservation.Reserve([_seatIds], _customerId, _reservedAt, _reservationDuration);
         var action = () => reservation.Cancel(reservation.ExpiresAt);
 
         // Act + Assert
@@ -281,7 +282,7 @@ public class ReservationTests
     {
         // Arrange
         var reservation =
-            Reservation.Reserve([_seatId], _customerId, _reservedAt, _reservationDuration);
+            Reservation.Reserve([_seatIds], _customerId, _reservedAt, _reservationDuration);
         var initialCancelledAt = _reservedAt.AddMinutes(5);
         var repeatedCancelledAt = _reservedAt.AddMinutes(10);
         reservation.Cancel(initialCancelledAt);
@@ -292,5 +293,184 @@ public class ReservationTests
         // Assert
         reservation.Status.Should().Be(ReservationStatus.Cancelled);
         reservation.CancelledAt.Should().Be(initialCancelledAt);
+    }
+
+    [Fact]
+    public void Reserve_WithValidValues_RaisesCreatedDomainEvent()
+    {
+        // Arrange
+        var reservation =
+            Reservation.Reserve(
+                [_seatIds],
+                _customerId,
+                _reservedAt,
+                _reservationDuration
+            );
+
+        var domainEvent =
+            reservation.DomainEvents
+                .Should()
+                .ContainSingle()
+                .Which
+                .Should()
+                .BeOfType<ReservationCreatedDomainEvent>()
+                .Subject;
+        
+        // Assert
+        domainEvent.ReservationId.Should().Be(reservation.Id);
+        domainEvent.CustomerId.Should().Be(_customerId);
+        domainEvent.SeatIds.Should().BeEquivalentTo([_seatIds]);
+        domainEvent.ReservedAt.Should().Be(_reservedAt);
+        domainEvent.ExpiresAt.Should().Be(reservation.ExpiresAt);
+    }
+    
+    [Fact]
+    public void Confirm_BeforeExpiration_RaisesConfirmedDomainEvent()
+    {
+        // Arrange
+        var reservation = Reservation.Reserve(
+            [_seatIds],
+            _customerId,
+            _reservedAt,
+            _reservationDuration);
+
+        reservation.ClearDomainEvents();
+
+        var confirmedAt = _reservedAt.AddMinutes(5);
+
+        // Act
+        reservation.Confirm(confirmedAt);
+
+        // Assert
+        var domainEvent = reservation.DomainEvents
+            .Should()
+            .ContainSingle()
+            .Which
+            .Should()
+            .BeOfType<ReservationConfirmedDomainEvent>()
+            .Subject;
+
+        domainEvent.ReservationId.Should().Be(reservation.Id);
+        domainEvent.ConfirmedAt.Should().Be(confirmedAt);
+    }
+    
+    [Fact]
+    public void Confirm_WhenAlreadyConfirmed_DoesNotRaiseAnotherEvent()
+    {
+        // Arrange
+        var reservation = Reservation.Reserve(
+            [_seatIds],
+            _customerId,
+            _reservedAt,
+            _reservationDuration);
+
+        reservation.ClearDomainEvents();
+
+        // Act
+        reservation.Confirm(_reservedAt.AddMinutes(5));
+        reservation.ClearDomainEvents();
+
+        reservation.Confirm(_reservedAt.AddMinutes(10));
+
+        // Assert
+        reservation.DomainEvents.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Expire_AtExpiration_RaisesExpiredDomainEvent()
+    {
+        // Arrange
+        var reservation = Reservation.Reserve(
+            [_seatIds],
+            _customerId,
+            _reservedAt,
+            _reservationDuration);
+
+        reservation.ClearDomainEvents();
+        var expiredAt = reservation.ExpiresAt;
+
+        // Act
+        reservation.Expire(expiredAt);
+
+        // Assert
+        var domainEvent = reservation.DomainEvents
+            .Should()
+            .ContainSingle()
+            .Which
+            .Should()
+            .BeOfType<ReservationExpiredDomainEvent>()
+            .Subject;
+
+        domainEvent.ReservationId.Should().Be(reservation.Id);
+        domainEvent.ExpiredAt.Should().Be(expiredAt);
+    }
+
+    [Fact]
+    public void Expire_WhenAlreadyExpired_DoesNotRaiseAnotherEvent()
+    {
+        // Arrange
+        var reservation = Reservation.Reserve(
+            [_seatIds],
+            _customerId,
+            _reservedAt,
+            _reservationDuration);
+
+        reservation.Expire(reservation.ExpiresAt);
+        reservation.ClearDomainEvents();
+
+        // Act
+        reservation.Expire(reservation.ExpiresAt.AddMinutes(1));
+
+        // Assert
+        reservation.DomainEvents.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Cancel_BeforeExpiration_RaisesCancelledDomainEvent()
+    {
+        // Arrange
+        var reservation = Reservation.Reserve(
+            [_seatIds],
+            _customerId,
+            _reservedAt,
+            _reservationDuration);
+
+        reservation.ClearDomainEvents();
+        var cancelledAt = _reservedAt.AddMinutes(5);
+
+        // Act
+        reservation.Cancel(cancelledAt);
+
+        // Assert
+        var domainEvent = reservation.DomainEvents
+            .Should()
+            .ContainSingle()
+            .Which
+            .Should()
+            .BeOfType<ReservationCancelledDomainEvent>()
+            .Subject;
+
+        domainEvent.ReservationId.Should().Be(reservation.Id);
+        domainEvent.CancelledAt.Should().Be(cancelledAt);
+    }
+
+    [Fact]
+    public void Cancel_WhenAlreadyCancelled_DoesNotRaiseAnotherEvent()
+    {
+        // Arrange
+        var reservation = Reservation.Reserve(
+            [_seatIds],
+            _customerId,
+            _reservedAt,
+            _reservationDuration);
+
+        reservation.Cancel(_reservedAt.AddMinutes(5));
+        reservation.ClearDomainEvents();
+
+        // Act
+        reservation.Cancel(_reservedAt.AddMinutes(10));
+
+        // Assert
+        reservation.DomainEvents.Should().BeEmpty();
     }
 }
