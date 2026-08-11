@@ -104,5 +104,5 @@ tests/BuildingBlocks.CQS.UnitTests/
 
 ## Related Documentation
 
-- [Building Blocks overview](../README.md)
+- [Building Blocks overview](../readme.md)
 - [Architecture Decision Records](../../../docs/adr/README.md)

@@ -77,7 +77,7 @@ TicketFlow/
 | Document                                            | Purpose                                                  |
 | --------------------------------------------------- | -------------------------------------------------------- |
 | [Architecture Decision Records](docs/adr/README.md) | Important architectural decisions and their consequences |
-| [Building Blocks](src/BuildingBlocks/README.md)     | Map and ownership rules for shared components            |
-| [CQS](src/BuildingBlocks/CQS/README.md)             | Request pipeline contracts and behavior                  |
-| [Domain](src/BuildingBlocks/Domain/README.md)       | Shared domain foundations                                |
-| [Reservations](src/Modules/Reservations/README.md)  | Reservation lifecycle and business rules                 |
+| [Building Blocks](src/BuildingBlocks/readme.md)     | Map and ownership rules for shared components            |
+| [CQS](src/BuildingBlocks/CQS/readme.md)             | Request pipeline contracts and behavior                  |
+| [Domain](src/BuildingBlocks/Domain/readme.md)       | Shared domain foundations                                |
+| [Reservations](src/Modules/Reservations/Domain/readme.md) | Reservation lifecycle and business rules          |

@@ -83,6 +83,6 @@ Small corrections that do not change the decision may be applied directly.
 
 ## Related Documentation
 
-- [Project overview](../../README.md)
-- [Building Blocks](../../src/BuildingBlocks/README.md)
-- [Reservations module](../../src/Modules/Reservations/README.md)
+- [Project overview](../../readme.md)
+- [Building Blocks](../../src/BuildingBlocks/readme.md)
+- [Reservations module](../../src/Modules/Reservations/Domain/readme.md)

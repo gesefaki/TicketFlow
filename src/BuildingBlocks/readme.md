@@ -45,7 +45,7 @@ CQS provides contracts and MediatR pipeline behaviors for processing requests.
 CQS is separated into smaller projects so consumers can depend only on the
 contracts they require.
 
-Detailed documentation: [CQS](CQS/README.md).
+Detailed documentation: [CQS](CQS/readme.md).
 
 ### Domain
 
@@ -61,7 +61,7 @@ Its current responsibilities include:
 
 It does not define reservation, payment, customer, or ticketing rules.
 
-Detailed documentation: [Domain](Domain/README.md).
+Detailed documentation: [Domain](Domain/readme.md).
 
 ## Dependency Rules
 
@@ -86,7 +86,7 @@ MediatR, EF Core, RabbitMQ, or other infrastructure technologies.
 
 ## Related Documentation
 
-- [Project overview](../../README.md)
-- [CQS](CQS/README.md)
-- [Domain](Domain/README.md)
+- [Project overview](../../readme.md)
+- [CQS](CQS/readme.md)
+- [Domain](Domain/readme.md)
 - [Architecture Decision Records](../../docs/adr/README.md)

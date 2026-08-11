@@ -114,7 +114,7 @@ meaning.
 
 ## Related Documentation
 
-- [Building Blocks overview](../README.md)
-- [Reservations module](../../Modules/Reservations/README.md)
+- [Building Blocks overview](../readme.md)
+- [Reservations module](../../Modules/Reservations/Domain/readme.md)
 - [ADR-001: Module Boundaries](../../../docs/adr/ADR-001-module-boundaries.md)
 - [ADR-002: Domain and Integration Events](../../../docs/adr/ADR-002-domain-and-integration-events.md)
