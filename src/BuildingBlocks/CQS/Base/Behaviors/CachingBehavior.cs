@@ -20,6 +20,12 @@ public class CachingBehavior<TRequest, TResponse>
     private readonly ICacheKeyGenerator<TRequest> _keyGenerator;
     private readonly ILogger<CachingBehavior<TRequest, TResponse>> _logger;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CachingBehavior{TRequest,TResponse}"/> class.
+    /// </summary>
+    /// <param name="cache">Distributed cache used to read and store query responses.</param>
+    /// <param name="keyGenerator">Generator used to create a cache key for the request.</param>
+    /// <param name="logger">Logger used to record cache hits, misses, and failures.</param>
     public CachingBehavior(IDistributedCache cache,
         ICacheKeyGenerator<TRequest> keyGenerator, 
         ILogger<CachingBehavior<TRequest, TResponse>> logger)

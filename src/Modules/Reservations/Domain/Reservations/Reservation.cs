@@ -1,5 +1,7 @@
 ﻿using TicketFlow.BuildingBlocks.Domain.Common;
+using TicketFlow.BuildingBlocks.Domain.Interfaces;
 using TicketFlow.BuildingBlocks.Domain.Models;
+using System.Collections.Immutable;
 using TicketFlow.Reservations.Domain.Customers;
 using TicketFlow.Reservations.Domain.Events;
 using TicketFlow.Reservations.Domain.Seats;
@@ -10,7 +12,7 @@ namespace TicketFlow.Reservations.Domain.Reservations;
 /// Represents a time-limited reservation of a seat by a customer.
 /// Controls the reservation lifecycle and enforces valid state transitions.
 /// </summary>
-public sealed class Reservation : AggregateRoot<ReservationId>
+public sealed class Reservation : AggregateRoot<ReservationId>, IAuditable
 {
     private readonly List<SeatId> _seatIds = [];
 
@@ -48,6 +50,12 @@ public sealed class Reservation : AggregateRoot<ReservationId>
     /// Represents the current state of a reservation.
     /// </summary>
     public ReservationStatus Status { get; private set; }
+
+    /// <inheritdoc />
+    public DateTimeOffset CreatedAt { get; private init; }
+
+    /// <inheritdoc />
+    public DateTimeOffset? UpdatedAt { get; private set; }
 
     private Reservation()
     {
@@ -117,7 +125,7 @@ public sealed class Reservation : AggregateRoot<ReservationId>
         reservation.Raise(new ReservationCreatedDomainEvent(
             reservation.Id,
             reservation.CustomerId,
-            reservation.SeatIds.ToArray(),
+            ImmutableArray.CreateRange(reservation.SeatIds),
             reservedAt,
             reservation.ExpiresAt)
         );

@@ -57,6 +57,7 @@ TicketFlow/
 │           └── Domain/                   # Reservation aggregate and events
 └── tests/
     ├── BuildingBlocks.CQS.UnitTests/
+    ├── BuildingBlocks.Domain.UnitTests/
     └── Reservations.Domain.UnitTests/
 ```
 

@@ -308,7 +308,7 @@ public class ReservationTests
             );
 
         var domainEvent =
-            reservation.DomainEvents
+            reservation.GetDomainEvents()
                 .Should()
                 .ContainSingle()
                 .Which
@@ -323,6 +323,34 @@ public class ReservationTests
         domainEvent.ReservedAt.Should().Be(_reservedAt);
         domainEvent.ExpiresAt.Should().Be(reservation.ExpiresAt);
     }
+
+    [Fact]
+    public void Reserve_WhenCreatedEventSeatIdsAreModified_PreservesEventPayload()
+    {
+        // Arrange
+        var reservation = Reservation.Reserve(
+            [_seatIds],
+            _customerId,
+            _reservedAt,
+            _reservationDuration);
+
+        var domainEvent = reservation.GetDomainEvents()
+            .Should()
+            .ContainSingle()
+            .Which
+            .Should()
+            .BeOfType<ReservationCreatedDomainEvent>()
+            .Subject;
+
+        // Act
+        var modifiedSeatIds = domainEvent.SeatIds.SetItem(0, SeatId.New());
+
+        // Assert
+        domainEvent.SeatIds.Should().ContainSingle()
+            .Which.Should().Be(_seatIds);
+        modifiedSeatIds.Should().ContainSingle()
+            .Which.Should().NotBe(_seatIds);
+    }
     
     [Fact]
     public void Confirm_BeforeExpiration_RaisesConfirmedDomainEvent()
@@ -334,7 +362,7 @@ public class ReservationTests
             _reservedAt,
             _reservationDuration);
 
-        reservation.ClearDomainEvents();
+        reservation.MarkDomainEventsAsDispatched(reservation.GetDomainEvents());
 
         var confirmedAt = _reservedAt.AddMinutes(5);
 
@@ -342,7 +370,7 @@ public class ReservationTests
         reservation.Confirm(confirmedAt);
 
         // Assert
-        var domainEvent = reservation.DomainEvents
+        var domainEvent = reservation.GetDomainEvents()
             .Should()
             .ContainSingle()
             .Which
@@ -364,16 +392,16 @@ public class ReservationTests
             _reservedAt,
             _reservationDuration);
 
-        reservation.ClearDomainEvents();
+        reservation.MarkDomainEventsAsDispatched(reservation.GetDomainEvents());
 
         // Act
         reservation.Confirm(_reservedAt.AddMinutes(5));
-        reservation.ClearDomainEvents();
+        reservation.MarkDomainEventsAsDispatched(reservation.GetDomainEvents());
 
         reservation.Confirm(_reservedAt.AddMinutes(10));
 
         // Assert
-        reservation.DomainEvents.Should().BeEmpty();
+        reservation.GetDomainEvents().Should().BeEmpty();
     }
 
     [Fact]
@@ -386,14 +414,14 @@ public class ReservationTests
             _reservedAt,
             _reservationDuration);
 
-        reservation.ClearDomainEvents();
+        reservation.MarkDomainEventsAsDispatched(reservation.GetDomainEvents());
         var expiredAt = reservation.ExpiresAt;
 
         // Act
         reservation.Expire(expiredAt);
 
         // Assert
-        var domainEvent = reservation.DomainEvents
+        var domainEvent = reservation.GetDomainEvents()
             .Should()
             .ContainSingle()
             .Which
@@ -416,13 +444,13 @@ public class ReservationTests
             _reservationDuration);
 
         reservation.Expire(reservation.ExpiresAt);
-        reservation.ClearDomainEvents();
+        reservation.MarkDomainEventsAsDispatched(reservation.GetDomainEvents());
 
         // Act
         reservation.Expire(reservation.ExpiresAt.AddMinutes(1));
 
         // Assert
-        reservation.DomainEvents.Should().BeEmpty();
+        reservation.GetDomainEvents().Should().BeEmpty();
     }
 
     [Fact]
@@ -435,14 +463,14 @@ public class ReservationTests
             _reservedAt,
             _reservationDuration);
 
-        reservation.ClearDomainEvents();
+        reservation.MarkDomainEventsAsDispatched(reservation.GetDomainEvents());
         var cancelledAt = _reservedAt.AddMinutes(5);
 
         // Act
         reservation.Cancel(cancelledAt);
 
         // Assert
-        var domainEvent = reservation.DomainEvents
+        var domainEvent = reservation.GetDomainEvents()
             .Should()
             .ContainSingle()
             .Which
@@ -465,12 +493,12 @@ public class ReservationTests
             _reservationDuration);
 
         reservation.Cancel(_reservedAt.AddMinutes(5));
-        reservation.ClearDomainEvents();
+        reservation.MarkDomainEventsAsDispatched(reservation.GetDomainEvents());
 
         // Act
         reservation.Cancel(_reservedAt.AddMinutes(10));
 
         // Assert
-        reservation.DomainEvents.Should().BeEmpty();
+        reservation.GetDomainEvents().Should().BeEmpty();
     }
 }

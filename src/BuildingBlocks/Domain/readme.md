@@ -22,14 +22,18 @@ Domain/
 │   └── ISoftDeletable.cs
 └── Models/
     ├── AggregateRoot.cs
-    └── BaseEntity.cs
+    ├── AuditableEntity.cs
+    └── Entity.cs
 ```
 
-## Base Entity
+## Entities
 
-`BaseEntity<TId>` provides common identity and audit properties:
+`Entity<TId>` provides common identity:
 
 - `Id`;
+
+`AuditableEntity<TId>` extends `Entity<TId>` with audit properties:
+
 - `CreatedAt`;
 - `UpdatedAt`.
 
@@ -43,7 +47,7 @@ infrastructure.
 
 ## Aggregate Root
 
-`AggregateRoot<TId>` extends `BaseEntity<TId>` and collects domain events raised
+`AggregateRoot<TId>` extends `Entity<TId>` and collects domain events raised
 during business operations.
 
 ## Domain Events

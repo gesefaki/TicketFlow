@@ -19,6 +19,11 @@ public class LoggingBehavior<TRequest, TResponse>
 
     private const string Undefined = "Undefined";
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="LoggingBehavior{TRequest,TResponse}"/> class.
+    /// </summary>
+    /// <param name="logger">Logger used to record request execution.</param>
+    /// <param name="accessor">Accessor that provides the current HTTP request context.</param>
     public LoggingBehavior(ILogger<LoggingBehavior<TRequest, TResponse>> logger, IHttpContextAccessor accessor)
     {
         _logger = logger;

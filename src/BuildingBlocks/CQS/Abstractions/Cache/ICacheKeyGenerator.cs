@@ -3,6 +3,7 @@
 /// <summary>
 /// A temporary placeholder interface that hasn't been fully implemented yet.
 /// </summary>
+/// <typeparam name="TRequest">Type of request for which a cache key is generated.</typeparam>
 public interface ICacheKeyGenerator<in TRequest>
 {
     /// <summary>
