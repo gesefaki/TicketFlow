@@ -39,8 +39,8 @@ public class LoggingBehavior<TRequest, TResponse>
         var context = _accessor.HttpContext;
         
         var requestName = typeof(TRequest).Name;
-        var method = context.Request.Method ?? Undefined;
-        var path = context.Request.Path.Value ?? Undefined;
+        var method = context?.Request.Method ?? Undefined;
+        var path = context?.Request.Path.Value ?? Undefined;
 
         _logger.LogInformation("Request {RequestName} to {Path} with {Method} started handling",
             requestName,
@@ -48,14 +48,28 @@ public class LoggingBehavior<TRequest, TResponse>
             method
         );
 
-        var response = await next(cancellationToken);
-        
-        _logger.LogInformation("Request {RequestName} to {Path} with {Method} finished handling",
-            requestName,
-            path,
-            method
-        );
+        try
+        {
+            var response = await next(cancellationToken);
 
-        return response;
+            _logger.LogInformation(
+                "Request {RequestName} to {Path} with {Method} completed",
+                requestName,
+                path,
+                method);
+
+            return response;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Request {RequestName} to {Path} with {Method} failed",
+                requestName,
+                path,
+                method);
+
+            throw;
+        }
     }
 }

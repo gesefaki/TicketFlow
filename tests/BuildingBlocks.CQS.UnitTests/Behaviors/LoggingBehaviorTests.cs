@@ -9,7 +9,7 @@ namespace TicketFlow.BuildingBlocks.CQS.UnitTests.Behaviors;
 public class LoggingBehaviorTests
 {
     [Fact]
-    public async Task Handle_LogStartAndFinish_AndReturnResponse()
+    public async Task Handle_WhenHandlerSucceeds_LogsStartAndCompletionAndReturnsResponse()
     {
         // Arrange
         var context = new DefaultHttpContext
@@ -65,11 +65,15 @@ public class LoggingBehaviorTests
         logger.Entries[0].Message.Should().Contain("/tickets/5");
         logger.Entries[0].Message.Should().Contain("GET");
 
-        logger.Entries[1].Message.Should().Contain("finished");
+        logger.Entries[1].Message.Should().Contain("completed");
+        logger.Entries[1].Message.Should().Contain(nameof(TestRequest));
+        logger.Entries[1].Message.Should().Contain("/tickets/5");
+        logger.Entries[1].Message.Should().Contain("GET");
+        logger.Entries.Should().OnlyContain(entry => entry.Exception == null);
     }
 
     [Fact]
-    public async Task Handle_WhenHandlerFails_ShouldPropagateException()
+    public async Task Handle_WhenHandlerFails_LogsErrorAndPropagatesOriginalException()
     {
         // Arrange
         var context = new DefaultHttpContext
@@ -106,7 +110,17 @@ public class LoggingBehaviorTests
 
         assertion.Which.Should().BeSameAs(expectedException);
 
-        logger.Entries.Should().ContainSingle();
+        logger.Entries.Should().HaveCount(2);
+        logger.Entries[0].Level.Should().Be(LogLevel.Information);
         logger.Entries[0].Message.Should().Contain("started");
+        logger.Entries[0].Exception.Should().BeNull();
+
+        logger.Entries[1].Level.Should().Be(LogLevel.Error);
+        logger.Entries[1].Message.Should().Contain("failed");
+        logger.Entries[1].Message.Should().Contain(nameof(TestRequest));
+        logger.Entries[1].Message.Should().Contain("/tickets");
+        logger.Entries[1].Message.Should().Contain("POST");
+        logger.Entries[1].Exception.Should().BeSameAs(expectedException);
+        logger.Entries.Should().NotContain(entry => entry.Message.Contains("completed"));
     }
 }
