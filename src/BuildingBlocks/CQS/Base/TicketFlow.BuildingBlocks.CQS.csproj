@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="FluentValidation" Version="12.1.1" />
       <PackageReference Include="MediatR" Version="14.2.0" />
       <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.11" />
       <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="11.0.0-preview.6.26359.118" />
