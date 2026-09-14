@@ -24,7 +24,7 @@ public sealed class Reservation : AggregateRoot<ReservationId>, IAuditable
     /// <summary>
     /// Identifier of the customer who owns the reservation.
     /// </summary>
-    public CustomerId CustomerId { get; private set; }
+    public CustomerId CustomerId { get; private init; }
 
     /// <summary>
     /// Confirmation timestamp, or <see langword="null"/> when the reservation is not confirmed.
